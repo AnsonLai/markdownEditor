@@ -1,0 +1,232 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.2"></script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.0.0/github-markdown.min.css"
+    integrity="sha512-nxv6uny69e6SeGW/aOEW0iC2+ruQMKvFDbjav6sVu1dr89ioo5wBm3F0IbBGsNyAt6nuBR/x2HUSx0a7wLEegA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+</head>
+
+<style>
+  .markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 45px;
+  }
+
+  @media (max-width: 767px) {
+    .markdown-body {
+      padding: 15px;
+    }
+  }
+</style>
+
+<body class="d-flex flex-column" style="min-height: 100vh;">
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark bg-success">
+      <a class="navbar-brand ms-4" href="#">
+        <span class="h3">Markdown Editor</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </nav>
+  </header>
+
+
+
+  <main class="flex-grow-1">
+    <div class="container-fluid">
+      <div class="row">
+        <div id="alert" class="alert alert-danger" role="alert">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <textarea id="editor" class="form-control" rows="20"></textarea>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6">
+          <textarea id="html_code" class="form-control" rows="20"></textarea>
+        </div>
+        <div class="col-6">
+          <div id="full_output">
+            <div id="toc"></div>
+            <div id="legal_text">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+  </main>
+
+
+  <footer class="page-footer font-small text-white bg-dark">
+    <div class="footer-copyright text-center py-3">
+      <p>Markdown Editor</p>
+    </div>
+
+  </footer>
+
+
+</body>
+
+
+
+<script>
+  $("#alert").hide();
+
+  $('#editor').bind('input propertychange', function () {
+    document.getElementById('legal_text').innerHTML = marked.parse($('#editor').val());
+    format_html();
+    document.getElementById('html_code').value = document.getElementById('full_output').innerHTML;
+  });
+
+
+  function numberHeadings(element) {
+    var h1_counter = 0;
+    var h2_counter = 0;
+    var h3_counter = 0;
+    var h4_counter = 0;
+    var h5_counter = 0;
+    var h6_counter = 0;
+
+    element.find("h1:not([numberHeadings=complete]),h2:not([numberHeadings=complete]),h3:not([numberHeadings=complete]),h4:not([numberHeadings=complete]),h5:not([numberHeadings=complete]),h6:not([numberHeadings=complete])").each(function () {
+      switch ($(this).prop("tagName")) {
+        case "H1":
+          h1_counter += 1;
+          h2_counter = 0;
+          h3_counter = 0;
+          h4_counter = 0;
+          h5_counter = 0;
+          h6_counter = 0;
+          // $(this).prepend($('<span class="h1_numbering">').text(h1_counter.toString() + ". "));
+          $(this).attr("numberHeadings", "complete");
+          break;
+        case "H2":
+          h2_counter += 1;
+          h3_counter = 0;
+          h4_counter = 0;
+          h5_counter = 0;
+          h6_counter = 0;
+          $(this).prepend($('<span class="h2_numbering">').text(h2_counter.toString() + ". "));
+          $(this).attr("numberHeadings", "complete");
+          break;
+        case "H3":
+          h3_counter += 1;
+          h4_counter = 0;
+          h5_counter = 0;
+          h6_counter = 0;
+          $(this).prepend($('<span class="h3_numbering">').text(h2_counter.toString() + "." + h3_counter.toString() + ". "));
+          $(this).attr("numberHeadings", "complete");
+          break;
+        case "H4":
+          h4_counter += 1;
+          h5_counter = 0;
+          h6_counter = 0;
+          $(this).prepend($('<span class="h4_numbering">').text(h2_counter.toString() + "." + h3_counter.toString() + "." + h4_counter.toString() + ". "));
+          $(this).attr("numberHeadings", "complete");
+          break;
+        case "H5":
+          h5_counter += 1;
+          h6_counter = 0;
+          $(this).prepend($('<span class="h5_numbering">').text(h2_counter.toString() + "." + h3_counter.toString() + "." + h4_counter.toString() + "." + h5_counter.toString() + ". "));
+          $(this).attr("numberHeadings", "complete");
+          break;
+        case "H6":
+          h6_counter += 1;
+          $(this).prepend($('<span class="h6_numbering">').text(h2_counter.toString() + "." + h3_counter.toString() + "." + h4_counter.toString() + "." + h5_counter.toString() + "." + h6_counter.toString() + ". "));
+          $(this).attr("numberHeadings", "complete");
+          break;
+      }
+    })
+
+  };
+
+  function linkAnchors(element) {
+    element.find("a").each(function () {
+      if (($(this).attr('href').substr(0, 1)) == '#' && $(this).attr('linkAnchor') != "complete") {
+        linkAnchor($(this), element);
+      }
+    })
+  };
+
+  function linkAnchor(link, element) {
+    var link_id = link.attr('href');
+
+    if ($('[id="' + link_id.substr(1) + '"]').length == 1) {
+      var header = element.find(link_id);
+      link.attr("linkAnchor", "complete");
+      link.text("Section " + header.find("span").text().slice(0, -2) + " (" + header.clone().children().remove().end().text() + ")");
+    }
+    else if ($('[id="' + link_id.substr(1) + '"]').length == 0) {
+      $("#alert").text("The link " + link.attr('href') + " does not exist.");
+      $("#alert").show();
+    }
+  }
+
+  function checkDuplicateHeaders(element) {
+    var header_names = [];
+    element.find("h1, h2, h3, h4, h5, h6").each(function () {
+      header_names.push($(this).clone().children().remove().end().text());
+    });
+
+    sorted_array = header_names.slice().sort();
+    for (let i = 0; i < sorted_array.length - 1; i++) {
+      if (sorted_array[i + 1] == sorted_array[i]) {
+        $("#alert").text("Duplicate header: " + sorted_array[i] + ".");
+        $("#alert").show();
+      }
+    }
+  }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.css">
+
+<script>
+  tocbot.init({
+    // Where to render the table of contents.
+    tocSelector: '#toc',
+    // Where to grab the headings to build the table of contents.
+    contentSelector: '#legal_text',
+    // Which headings to grab inside of the contentSelector element.
+    headingSelector: 'h2, h3',
+    // For headings inside relative or absolute positioned containers within content.
+    hasInnerContainers: true,
+    orderedList: false,
+    disableTocScrollSync: true,
+    activeListItemClass: 'toc-list-item',
+    activeLinkClass: 'toc-list-item',
+  });
+  function format_html() {
+    numberHeadings($('#legal_text'));
+    linkAnchors($('#legal_text'));
+    checkDuplicateHeaders($('#legal_text'));
+    tocbot.refresh()
+  }
+
+
+</script>
